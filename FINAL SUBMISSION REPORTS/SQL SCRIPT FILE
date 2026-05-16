@@ -1,0 +1,461 @@
+C2 – Analytical Transformations
+
+1. Daily Revenue Trend
+silver_data = spark.table("shopstream.default.silver_sales")
+
+from pyspark.sql.functions import sum
+
+daily_revenue = (
+    silver_data
+    .groupBy("timestamp")
+    .agg(
+        sum("Revenue").alias("daily_revenue")
+    )
+    .orderBy("timestamp")
+)
+
+display(daily_revenue)
+
+spark.sql("DROP TABLE IF EXISTS shopstream.default.gold_daily_revenue")
+
+daily_revenue.write.mode("overwrite").saveAsTable(
+    "shopstream.default.gold_daily_revenue"
+)
+
+2. Region-wise Contribution %
+
+from pyspark.sql.functions import col
+
+from pyspark.sql.functions import sum, round
+
+total_revenue = silver_data.agg(
+    sum("Revenue").alias("total")
+).collect()[0]["total"]
+
+region_contribution = (
+    silver_data
+    .groupBy("region")
+    .agg(
+        sum("Revenue").alias("region_revenue")
+    )
+    .withColumn(
+        "contribution_percent",
+        round(
+            (col("region_revenue") / total_revenue) * 100,
+            2
+        )
+    )
+)
+
+display(region_contribution)
+
+region_contribution.write.mode("overwrite").saveAsTable(
+    "shopstream.default.gold_region_contribution"
+)
+
+3. Top 3 Stores per Region
+
+
+from pyspark.sql.window import Window
+from pyspark.sql.functions import dense_rank
+
+store_revenue = (
+    silver_data
+    .groupBy("region", "store_id")
+    .agg(
+        sum("Revenue").alias("store_revenue")
+    )
+)
+
+window_spec = Window.partitionBy("region").orderBy(
+    col("store_revenue").desc()
+)
+
+top_stores = (
+    store_revenue
+    .withColumn(
+        "rank",
+        dense_rank().over(window_spec)
+    )
+    .filter(col("rank") <= 3)
+)
+
+
+display(top_stores)
+
+top_stores.write.mode("overwrite").saveAsTable(
+    "shopstream.default.gold_top_stores_region"
+)
+
+4. Data Skew Identification
+
+region_skew = (
+    silver_data
+    .groupBy("region")
+    .agg(
+        sum("Revenue").alias("total_revenue")
+    )
+    .orderBy(col("total_revenue").desc())
+)
+
+
+display(region_skew)
+
+C3 – Gold Layer KPI Analytics
+
+1. Total Revenue KPI
+
+
+total_revenue_kpi = (
+    silver_data
+    .agg(
+        sum("Revenue").alias("total_revenue")
+    )
+)
+
+
+display(total_revenue_kpi)
+
+total_revenue_kpi.write.mode("overwrite").saveAsTable(
+    "shopstream.default.gold_total_revenue_kpi"
+)
+
+2. Average Order Value KPI
+
+from pyspark.sql.functions import avg
+
+average_order_value = (
+    silver_data
+    .agg(
+        avg("Revenue").alias("average_order_value")
+    )
+)
+
+display(average_order_value)
+
+average_order_value.write.mode("overwrite").saveAsTable(
+    "shopstream.default.gold_average_order_value"
+)
+
+
+3. Top Selling Products KPI
+
+top_products = (
+    silver_data
+    .groupBy("product")
+    .agg(
+        sum("Revenue").alias("product_revenue")
+    )
+    .orderBy(col("product_revenue").desc())
+)
+
+display(top_products)
+
+top_products.write.mode("overwrite").saveAsTable(
+    "shopstream.default.gold_top_products"
+)
+
+4. Region-wise Sales KPI
+
+
+region_sales_kpi = (
+    silver_data
+    .groupBy("region")
+    .agg(
+        sum("Revenue").alias("regional_revenue")
+    )
+    .orderBy(col("regional_revenue").desc())
+)
+
+display(region_sales_kpi)
+
+region_sales_kpi.write.mode("overwrite").saveAsTable(
+    "shopstream.default.gold_region_sales_kpi"
+)
+
+5. Store Performance KPI
+
+store_performance = (
+    silver_data
+    .groupBy("store_id")
+    .agg(
+        sum("Revenue").alias("store_revenue")
+    )
+    .orderBy(col("store_revenue").desc())
+)
+
+display(store_performance)
+
+spark.sql("DROP TABLE IF EXISTS shopstream.default.gold_store_performance")
+
+store_performance.write.mode("overwrite").saveAsTable(
+    "shopstream.default.gold_store_performance"
+)
+
+
+C4 – Advanced SQL Analytics
+
+
+CREATE OR REPLACE TEMP VIEW silver_sales_view AS
+SELECT * FROM shopstream.default.silver_sales;
+
+1. Total Revenue by Region
+
+SELECT
+    region,
+    SUM(Revenue) AS total_revenue
+FROM silver_sales_view
+GROUP BY region
+ORDER BY total_revenue DESC;
+
+2. Average Revenue Per Store
+
+SELECT
+    store_id,
+    AVG(Revenue) AS average_revenue
+FROM silver_sales_view
+GROUP BY store_id
+ORDER BY average_revenue DESC
+
+3. Top Products by Revenue
+
+
+SELECT
+    product,
+    SUM(Revenue) AS product_revenue
+FROM silver_sales_view
+GROUP BY product
+ORDER BY product_revenue DESC
+
+4. Region-wise Order Count
+
+SELECT
+    region,
+    COUNT(order_id) AS total_orders
+FROM silver_sales_view
+GROUP BY region
+ORDER BY total_orders DESC
+
+5. Highest Revenue Store
+
+SELECT
+    store_id,
+    SUM(Revenue) AS total_revenue
+FROM silver_sales_view
+GROUP BY store_id
+ORDER BY total_revenue DESC
+LIMIT 1
+
+6. Monthly Revenue Trend
+
+SELECT
+    SUBSTRING(timestamp, 1, 7) AS month,
+    SUM(Revenue) AS monthly_revenue
+FROM silver_sales_view
+GROUP BY month
+ORDER BY month
+
+7. High Revenue Orders Detection
+
+SELECT
+    order_id,
+    product,
+    region,
+    Revenue
+FROM silver_sales_view
+WHERE Revenue > 5000
+ORDER BY Revenue DESC
+
+Month-over-Month Growth (MoM)
+
+SELECT
+    SUBSTRING(timestamp, 1, 7) AS month,
+    SUM(Revenue) AS monthly_revenue
+FROM silver_sales_view
+GROUP BY month
+ORDER BY month
+
+Average Order Value Per Region
+
+
+SELECT
+    region,
+    AVG(Revenue) AS avg_order_value
+FROM silver_sales_view
+GROUP BY region
+ORDER BY avg_order_value DESC
+
+Store Performance Segmentation
+
+WITH store_revenue AS (
+
+    SELECT
+        store_id,
+        SUM(Revenue) AS total_revenue
+    FROM silver_sales_view
+    GROUP BY store_id
+
+)
+
+SELECT
+    store_id,
+    total_revenue,
+
+    CASE
+
+        WHEN total_revenue >= 700 THEN 'High'
+        WHEN total_revenue >= 400 THEN 'Medium'
+        ELSE 'Low'
+
+    END AS performance_segment
+
+FROM store_revenue
+ORDER BY total_revenue DESC
+
+Top 5 Products by Revenue (Global)
+
+SELECT
+    product,
+    SUM(Revenue) AS total_revenue,
+    DENSE_RANK() OVER (
+        ORDER BY SUM(Revenue) DESC
+    ) AS product_rank
+
+FROM silver_sales_view
+
+GROUP BY product
+
+ORDER BY product_rank
+
+Top 5 Products by Revenue (Region-wise)
+
+WITH regional_product_revenue AS (
+
+    SELECT
+        region,
+        product,
+        SUM(Revenue) AS total_revenue
+
+    FROM silver_sales_view
+
+    GROUP BY region, product
+
+)
+
+SELECT *
+
+FROM (
+
+    SELECT
+        region,
+        product,
+        total_revenue,
+
+        DENSE_RANK() OVER (
+            PARTITION BY region
+            ORDER BY total_revenue DESC
+        ) AS regional_rank
+
+    FROM regional_product_revenue
+
+)
+
+WHERE regional_rank <= 5
+
+Rolling Revenue (7-Day Moving Average)
+
+WITH daily_revenue AS (
+
+    SELECT
+        DATE(timestamp) AS order_date,
+        SUM(Revenue) AS daily_revenue
+
+    FROM silver_sales_view
+
+    GROUP BY DATE(timestamp)
+
+)
+
+SELECT
+    order_date,
+    daily_revenue,
+
+    AVG(daily_revenue) OVER (
+
+        ORDER BY order_date
+
+        ROWS BETWEEN 6 PRECEDING
+        AND CURRENT ROW
+
+    ) AS rolling_7day_avg
+
+FROM daily_revenue
+
+ORDER BY order_date
+
+Anomaly Detection
+
+
+WITH daily_revenue AS (
+
+    SELECT
+        DATE(timestamp) AS order_date,
+        SUM(Revenue) AS daily_revenue
+
+    FROM silver_sales_view
+
+    GROUP BY DATE(timestamp)
+
+),
+
+average_revenue AS (
+
+    SELECT
+        AVG(daily_revenue) AS avg_rev
+
+    FROM daily_revenue
+
+)
+
+SELECT
+    d.order_date,
+    d.daily_revenue,
+    a.avg_rev,
+
+    ROUND(
+        ABS(d.daily_revenue - a.avg_rev)
+        / a.avg_rev * 100,
+        2
+    ) AS deviation_percent
+
+FROM daily_revenue d
+CROSS JOIN average_revenue a
+
+WHERE
+    ABS(d.daily_revenue - a.avg_rev)
+    / a.avg_rev > 0.30
+
+ORDER BY deviation_percent DESC
+
+Customer Behavior Proxy Analysis
+
+SELECT
+    store_id,
+    COUNT(order_id) AS total_orders,
+    SUM(Revenue) AS total_revenue,
+    AVG(Revenue) AS avg_order_value
+
+FROM silver_sales_view
+
+GROUP BY store_id
+
+ORDER BY total_orders DESC
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,1131 @@
+{
+  "datasets": [
+    {
+      "name": "product_revenue",
+      "displayName": "Product Revenue",
+      "queryLines": [
+        "SELECT\n",
+        "  product,\n",
+        "  SUM(Revenue) as product_revenue\n",
+        "FROM\n",
+        "  shopstream.default.silver_sales\n",
+        "GROUP BY\n",
+        "  product\n",
+        "ORDER BY\n",
+        "  product_revenue DESC"
+      ]
+    },
+    {
+      "name": "top_stores_by_region",
+      "displayName": "Top Stores by Region",
+      "queryLines": [
+        "SELECT\n",
+        "  *\n",
+        "FROM\n",
+        "  shopstream.default.gold_top_stores_region\n",
+        "ORDER BY\n",
+        "  region,\n",
+        "  rank"
+      ]
+    },
+    {
+      "name": "store_revenue",
+      "displayName": "Store Revenue",
+      "queryLines": [
+        "SELECT\n",
+        "  store_id,\n",
+        "  SUM(Revenue) as store_revenue\n",
+        "FROM\n",
+        "  shopstream.default.silver_sales\n",
+        "GROUP BY\n",
+        "  store_id\n",
+        "ORDER BY\n",
+        "  store_revenue DESC"
+      ]
+    },
+    {
+      "name": "kpi_summary",
+      "displayName": "KPI Summary",
+      "queryLines": [
+        "SELECT\n",
+        "  SUM(Revenue) as total_revenue,\n",
+        "  AVG(Revenue) as avg_order_value,\n",
+        "  COUNT(*) as total_orders\n",
+        "FROM\n",
+        "  shopstream.default.silver_sales"
+      ]
+    },
+    {
+      "name": "regional_revenue",
+      "displayName": "Regional Revenue",
+      "queryLines": [
+        "SELECT\n",
+        "  region,\n",
+        "  SUM(Revenue) as total_revenue\n",
+        "FROM\n",
+        "  shopstream.default.silver_sales\n",
+        "GROUP BY\n",
+        "  region\n",
+        "ORDER BY\n",
+        "  total_revenue DESC"
+      ]
+    },
+    {
+      "name": "data_skew_analysis",
+      "displayName": "Data Skew Analysis",
+      "queryLines": [
+        "SELECT\n",
+        "  region,\n",
+        "  total_revenue\n",
+        "FROM\n",
+        "  shopstream.default.gold_data_skew\n",
+        "ORDER BY\n",
+        "  total_revenue DESC"
+      ]
+    },
+    {
+      "name": "daily_revenue_trend",
+      "displayName": "Daily Revenue Trend",
+      "queryLines": [
+        "SELECT\n",
+        "  timestamp,\n",
+        "  daily_revenue\n",
+        "FROM\n",
+        "  shopstream.default.gold_daily_revenue\n",
+        "ORDER BY\n",
+        "  timestamp"
+      ]
+    },
+    {
+      "name": "store_performance_detail",
+      "displayName": "Store Performance Detail",
+      "queryLines": [
+        "SELECT\n",
+        "  store_id,\n",
+        "  store_revenue\n",
+        "FROM\n",
+        "  shopstream.default.gold_store_performance\n",
+        "ORDER BY\n",
+        "  store_revenue DESC"
+      ]
+    },
+    {
+      "name": "top_products_ranked",
+      "displayName": "Top Products Ranked",
+      "queryLines": [
+        "SELECT\n",
+        "  Product,\n",
+        "  Product_Revenue\n",
+        "FROM\n",
+        "  shopstream.default.gold_top_products\n",
+        "ORDER BY\n",
+        "  Product_Revenue DESC"
+      ]
+    },
+    {
+      "name": "regional_contribution",
+      "displayName": "Regional Contribution %",
+      "queryLines": [
+        "SELECT\n",
+        "  region,\n",
+        "  region_revenue,\n",
+        "  contribution_percent\n",
+        "FROM\n",
+        "  shopstream.default.gold_region_contribution\n",
+        "ORDER BY\n",
+        "  contribution_percent DESC"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "analytics_overview",
+      "displayName": "Analytics Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "revenue_kpi",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_summary",
+                  "fields": [
+                    {
+                      "name": "total_revenue",
+                      "expression": "`total_revenue`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Revenue",
+                "showTitle": true
+              },
+              "format": {
+                "numberFormat": {
+                  "formatType": "numeral",
+                  "format": "$0,0.00"
+                }
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "total_revenue",
+                  "displayName": "Total Revenue"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 4,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "aov_kpi",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_summary",
+                  "fields": [
+                    {
+                      "name": "avg_order_value",
+                      "expression": "`avg_order_value`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Average Order Value",
+                "showTitle": true
+              },
+              "format": {
+                "numberFormat": {
+                  "formatType": "numeral",
+                  "format": "$0,0.00"
+                }
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "avg_order_value",
+                  "displayName": "Avg Order Value"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 2,
+            "width": 4,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "orders_kpi",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_summary",
+                  "fields": [
+                    {
+                      "name": "total_orders",
+                      "expression": "`total_orders`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Orders",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "total_orders",
+                  "displayName": "Total Orders"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 2,
+            "width": 4,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "region_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "regional_revenue",
+                  "fields": [
+                    {
+                      "name": "region",
+                      "expression": "`region`"
+                    },
+                    {
+                      "name": "total_revenue",
+                      "expression": "`total_revenue`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Revenue by Region",
+                "showTitle": true,
+                "description": "Regional revenue breakdown with exact amounts",
+                "showDescription": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "region",
+                  "axis": {
+                    "title": "Region Name",
+                    "hideTitle": false,
+                    "hideLabels": false
+                  },
+                  "formatTemplate": "{{ @formatted }}",
+                  "displayName": "Region",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "total_revenue",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    }
+                  },
+                  "axis": {
+                    "title": "Revenue (USD)",
+                    "hideTitle": false,
+                    "hideLabels": false,
+                    "hideGrid": false
+                  },
+                  "displayName": "Total Revenue",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 8,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "region_pie",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "regional_revenue",
+                  "fields": [
+                    {
+                      "name": "total_revenue",
+                      "expression": "`total_revenue`"
+                    },
+                    {
+                      "name": "region",
+                      "expression": "`region`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Regional Distribution",
+                "showTitle": true
+              },
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "total_revenue",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Revenue"
+                },
+                "color": {
+                  "fieldName": "region",
+                  "displayName": "Region",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 8,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "product_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "product_revenue",
+                  "fields": [
+                    {
+                      "name": "product_revenue",
+                      "expression": "`product_revenue`"
+                    },
+                    {
+                      "name": "product",
+                      "expression": "`product`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Product Revenue",
+                "showTitle": true,
+                "description": "Laptop | Gaming Console | Tablet | Drone | Smartphone | Smartwatch | Monitor | Camera | Headphones | Printer",
+                "showDescription": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "product",
+                  "axis": {
+                    "title": "Product Name",
+                    "hideTitle": false,
+                    "hideLabels": false,
+                    "labelAngle": 45
+                  },
+                  "displayName": "Product Name",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "product_revenue",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    }
+                  },
+                  "axis": {
+                    "title": "Revenue (USD)",
+                    "hideTitle": false,
+                    "hideLabels": false,
+                    "hideGrid": false
+                  },
+                  "displayName": "Revenue",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": true,
+                  "text": {
+                    "fieldName": "product_revenue",
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "USD",
+                      "abbreviation": "none",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 15,
+            "width": 6,
+            "height": 10
+          }
+        },
+        {
+          "widget": {
+            "name": "store_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "store_revenue",
+                  "fields": [
+                    {
+                      "name": "store_revenue",
+                      "expression": "`store_revenue`"
+                    },
+                    {
+                      "name": "store_id",
+                      "expression": "`store_id`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "annotations": [
+                {
+                  "type": "horizontal-line",
+                  "encodings": {
+                    "y": {
+                      "dataValue": "950",
+                      "dataType": "DOUBLE"
+                    }
+                  }
+                },
+                {
+                  "type": "horizontal-line",
+                  "encodings": {
+                    "y": {
+                      "dataValue": "950",
+                      "dataType": "DOUBLE"
+                    }
+                  }
+                }
+              ],
+              "frame": {
+                "title": "Store Performance",
+                "showTitle": true,
+                "description": "Store revenue with exact amounts",
+                "showDescription": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "store_id",
+                  "axis": {
+                    "title": "Store ID",
+                    "hideTitle": false,
+                    "hideLabels": false
+                  },
+                  "displayName": "Store ID",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "store_revenue",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    }
+                  },
+                  "axis": {
+                    "title": "Revenue (USD)",
+                    "hideTitle": false,
+                    "hideLabels": false,
+                    "hideGrid": false
+                  },
+                  "displayName": "Store Revenue",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": true,
+                  "showTotal": false,
+                  "text": {
+                    "fieldName": "store_revenue",
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "USD",
+                      "abbreviation": "none",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 15,
+            "width": 6,
+            "height": 10
+          }
+        },
+        {
+          "widget": {
+            "name": "top_stores_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top_stores_by_region",
+                  "fields": [
+                    {
+                      "name": "region",
+                      "expression": "`region`"
+                    },
+                    {
+                      "name": "store_id",
+                      "expression": "`store_id`"
+                    },
+                    {
+                      "name": "store_revenue",
+                      "expression": "`store_revenue`"
+                    },
+                    {
+                      "name": "rank",
+                      "expression": "`rank`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Top Stores by Region",
+                "showTitle": true
+              },
+              "rowsPerPage": 20,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "region",
+                    "displayName": "Region"
+                  },
+                  {
+                    "fieldName": "store_id",
+                    "displayName": "Store ID"
+                  },
+                  {
+                    "fieldName": "store_revenue",
+                    "format": {
+                      "type": "number-currency",
+                      "abbreviation": "none",
+                      "currencyCode": "USD"
+                    },
+                    "displayName": "Revenue"
+                  },
+                  {
+                    "fieldName": "rank",
+                    "displayName": "Rank"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 25,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## 📊 SmartGear Retail Analytics - Complete Insights\n",
+                "\n",
+                "**Medallion Pipeline Results** | Bronze → Silver → Gold | Real-time Kafka Streaming | Total Revenue: $7,517.59 | 10 Transactions"
+              ],
+              "verticalAlign": "VERTICAL_ALIGN_CENTER"
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "daily_trend_line",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "daily_revenue_trend",
+                  "fields": [
+                    {
+                      "name": "daily_revenue",
+                      "expression": "`daily_revenue`"
+                    },
+                    {
+                      "name": "timestamp",
+                      "expression": "`timestamp`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Daily Revenue Trend",
+                "showTitle": true,
+                "description": "Transaction-by-transaction revenue with timestamps"
+              },
+              "mark": {
+                "marker": {
+                  "shape": "circle"
+                },
+                "size": 1
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "timestamp",
+                  "axis": {
+                    "title": "Transaction Timestamp",
+                    "hideTitle": false,
+                    "hideLabels": false,
+                    "labelAngle": 45
+                  },
+                  "displayName": "Transaction Time",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "daily_revenue",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    }
+                  },
+                  "axis": {
+                    "title": "Transaction Revenue (USD)",
+                    "hideTitle": false,
+                    "hideLabels": false,
+                    "hideGrid": false
+                  },
+                  "displayName": "Revenue",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": true,
+                  "text": {
+                    "fieldName": "daily_revenue",
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "USD",
+                      "abbreviation": "none",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 31,
+            "width": 12,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "regional_contrib_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "regional_contribution",
+                  "fields": [
+                    {
+                      "name": "contribution_percent",
+                      "expression": "`contribution_percent`"
+                    },
+                    {
+                      "name": "region",
+                      "expression": "`region`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Regional Contribution %",
+                "showTitle": true,
+                "description": "Percentage contribution by region",
+                "showDescription": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "region",
+                  "axis": {
+                    "title": "Region Name",
+                    "hideTitle": false,
+                    "hideLabels": false
+                  },
+                  "displayName": "Region",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "contribution_percent",
+                  "format": {
+                    "type": "number-percent",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    }
+                  },
+                  "axis": {
+                    "title": "Contribution Percentage",
+                    "hideTitle": false,
+                    "hideLabels": false,
+                    "hideGrid": false
+                  },
+                  "displayName": "Contribution %",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": true,
+                  "text": {
+                    "fieldName": "contribution_percent",
+                    "format": {
+                      "type": "number-percent",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 38,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "top_products_ranked",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top_products_ranked",
+                  "fields": [
+                    {
+                      "name": "Product_Revenue",
+                      "expression": "`Product_Revenue`"
+                    },
+                    {
+                      "name": "Product",
+                      "expression": "`Product`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top Products Ranked",
+                "showTitle": true,
+                "description": "Product rankings by revenue"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Product",
+                  "axis": {
+                    "title": "Product Name",
+                    "hideTitle": false,
+                    "hideLabels": false,
+                    "labelAngle": 0
+                  },
+                  "displayName": "Product",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "Product_Revenue",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    }
+                  },
+                  "axis": {
+                    "title": "Product Revenue (USD)",
+                    "hideTitle": false,
+                    "hideLabels": false,
+                    "hideGrid": false
+                  },
+                  "displayName": "Revenue",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": true,
+                  "text": {
+                    "fieldName": "Product_Revenue",
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "USD",
+                      "abbreviation": "none",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 38,
+            "width": 6,
+            "height": 9
+          }
+        },
+        {
+          "widget": {
+            "name": "store_performance_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "store_performance_detail",
+                  "fields": [
+                    {
+                      "name": "store_id",
+                      "expression": "`store_id`"
+                    },
+                    {
+                      "name": "store_revenue",
+                      "expression": "`store_revenue`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Store Performance Detail",
+                "showTitle": true
+              },
+              "rowsPerPage": 20,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "store_id",
+                    "displayName": "Store ID"
+                  },
+                  {
+                    "fieldName": "store_revenue",
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "USD",
+                      "abbreviation": "none"
+                    },
+                    "displayName": "Revenue"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 47,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "comprehensive_insights",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## 🎯 Comprehensive Analytics Insights\n",
+                "\n",
+                "### 📈 Temporal Analysis\n",
+                "* **Daily Revenue Trend**: Transaction flow throughout April 1st shows consistent activity with peak transaction of $1,701 early in the day\n",
+                "* **Time Pattern**: Revenue generation spans from 10:01 AM to 10:10 AM, indicating concentrated business hours\n",
+                "* **Revenue Consistency**: Multiple high-value transactions ($999.98, $961.20, $799.50) demonstrate strong customer purchasing power\n",
+                "\n",
+                "### 🌍 Regional Performance Deep Dive\n",
+                "* **North Region Dominance**: 40.45% contribution reflects strong market penetration and customer loyalty\n",
+                "* **East Region Stability**: 28.63% represents solid secondary market with growth potential\n",
+                "* **West Region Opportunity**: 19.74% indicates emerging market with expansion possibilities\n",
+                "* **South Region Growth**: 11.18% suggests untapped potential requiring strategic investment\n",
+                "* **Distribution Balance**: Current skew toward North necessitates diversification strategy\n",
+                "\n",
+                "### 📦 Product Performance Rankings\n",
+                "* **Category Leaders**: Laptop ($1,701), Gaming Console ($999.98), and Tablet ($961.20) drive 49% of total revenue\n",
+                "* **Product Mix**: Electronics dominate the top positions, validating SmartGear's positioning as premium tech retailer\n",
+                "* **Price Points**: Average product revenue suggests high-ticket items with strong margin potential\n",
+                "* **Inventory Strategy**: Top 3 products should maintain higher stock levels and promotional focus\n",
+                "\n",
+                "### 🏪 Store-Level Excellence\n",
+                "* **Performance Spread**: Individual store revenues range from high performers ($1,701) to opportunity stores\n",
+                "* **Regional Leaders**: Each region has distinct top-performing stores that can serve as operational benchmarks\n",
+                "* **Best Practices**: Store 101's performance provides replicable success patterns for training initiatives\n",
+                "* **Store Optimization**: Lower-performing stores can benefit from operational audits and process improvements\n",
+                "\n",
+                "### 💡 Strategic Recommendations\n",
+                "1. **Geographic Expansion**: Increase marketing spend in South region to balance portfolio\n",
+                "2. **Product Focus**: Expand laptop and gaming console inventory based on demand patterns\n",
+                "3. **Store Training**: Implement Store 101 operational excellence program across all locations\n",
+                "4. **Time Optimization**: Analyze peak hour patterns to optimize staffing and inventory placement\n",
+                "5. **Data-Driven Decisions**: Continue leveraging medallion architecture for real-time insights\n",
+                "\n",
+                "### 🔄 Medallion Pipeline Success Metrics\n",
+                "* **Bronze Layer**: 100% data capture from Kafka streaming source\n",
+                "* **Silver Layer**: Data quality transformations ensuring analytical accuracy\n",
+                "* **Gold Layer**: Executive-ready KPIs enabling immediate action\n",
+                "* **Real-Time Capability**: Streaming architecture supports operational decision-making\n",
+                "* **Scalability**: Architecture ready for growth as business expands"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 53,
+            "width": 12,
+            "height": 10
+          }
+        },
+        {
+          "widget": {
+            "name": "category_legend",
+            "multilineTextboxSpec": {
+              "lines": [
+                "**📍 Regions:** North ($3,040.50) | East ($2,152.40) | West ($1,483.94) | South ($840.75)  \n",
+                "**📦 Top Products:** Laptop ($1,701.00) | Gaming Console ($999.98) | Tablet ($961.20) | Drone ($799.50) | Smartphone ($650.75)  \n",
+                "**🏪 Top Stores:** Store 101 ($1,701.00) | Store 108 ($999.98) | Store 103 ($961.20) | Store 105 ($799.50) | Store 109 ($650.75)"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 12,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
